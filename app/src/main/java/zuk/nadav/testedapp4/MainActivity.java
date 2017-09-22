@@ -5,7 +5,10 @@ import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -32,6 +35,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
     LinearLayout getApp(String name,Drawable icon){
+        LinearLayout app=new LinearLayout(getApplicationContext());
+        app.setOrientation(LinearLayout.VERTICAL);
+        app.setGravity(Gravity.CENTER);
+        app.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext())/3, Light.Device.screenY(getApplicationContext())/4));
+        ImageView iv=new ImageView(getApplicationContext());
+        TextView tv=new TextView(getApplicationContext());
+        app.addView(iv);
+        app.addView(tv);
+        iv.setImageDrawable(icon);
+        tv.setText(name);
     return null;
     }
     void popupInfo(){
