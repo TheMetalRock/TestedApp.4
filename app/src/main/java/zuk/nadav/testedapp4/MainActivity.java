@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -45,7 +46,20 @@ public class MainActivity extends AppCompatActivity {
         app.addView(tv);
         iv.setImageDrawable(icon);
         tv.setText(name);
-    return null;
+        app.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO prompt uninstall
+            }
+        });
+        app.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                //TODO show details
+                return true;
+            }
+        });
+    return app;
     }
     void popupInfo(){
 
