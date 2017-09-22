@@ -14,6 +14,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 //        LinearLayout ll=findViewById(R.id.linearLayout1);
         Toast.makeText(this,"Screen: "+ Light.Device.screenX(getApplicationContext()) + "x"+ Light.Device.screenY(this),Toast.LENGTH_SHORT).show();
+
+
+
+
+
+
         setContentView(R.layout.activity_main);
+    }
+    LinearLayout getApp(){
+    return null;
+    }
+    void popupInfo(){
+
     }
 }
