@@ -8,9 +8,12 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.graphics.Palette;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +37,7 @@ public class MainActivity extends Activity {
     }
 
     private void startApp() {
-        LinearLayout ll = new LinearLayout(this);
+        final LinearLayout ll = new LinearLayout(this);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setGravity(Gravity.START);
         HorizontalScrollView hsv = new HorizontalScrollView(this);
@@ -62,12 +65,18 @@ public class MainActivity extends Activity {
         info.addView(main);
         info.addView(packagen);
         info.addView(ver);
-        info.addView(uninstall);
         superinfo.addView(info);
-        superinfo.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        superinfo.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         int s2 = Light.Device.screenX(this) / 3;
         icon.setLayoutParams(new LinearLayout.LayoutParams(s2, s2));
         ll.addView(superinfo);
+        LinearLayout nll=new LinearLayout(this);
+        nll.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL);
+        nll.setOrientation(LinearLayout.VERTICAL);
+        nll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        nll.addView(uninstall);
+        ll.addView(nll);
+
         final List<PackageInfo> apps = getPackageManager().getInstalledPackages(PackageManager.GET_ACTIVITIES);
         for (int i = 0; i < apps.size(); i++) {
             if (isUserApp(apps.get(i).applicationInfo)) {
@@ -78,6 +87,13 @@ public class MainActivity extends Activity {
                 bt.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+
+                        Bitmap iconBitmap = ((BitmapDrawable) apps.get(finalI).applicationInfo.loadLabel(getPackageManager())).getBitmap();
+
+                        Palette iconPalette = Palette.from(iconBitmap).maximumColorCount(16).generate();
+
+                        int primaryColorInt = iconPalette.getVibrantColor(0x000000);
+                        ll.setBackgroundColor(primaryColorInt);
                         main.setText(apps.get(finalI).applicationInfo.loadLabel(getPackageManager()));
                         ver.setText(String.valueOf(apps.get(finalI).versionName) + " (" + String.valueOf(apps.get(finalI).versionCode) + ")");
                         packagen.setText(apps.get(finalI).packageName);
