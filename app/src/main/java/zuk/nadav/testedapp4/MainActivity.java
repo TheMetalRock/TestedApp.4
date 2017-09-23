@@ -1,11 +1,15 @@
 package zuk.nadav.testedapp4;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -26,6 +30,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startApp();
+    }
+
+    private void startApp() {
         LinearLayout ll = new LinearLayout(this);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setGravity(Gravity.START);
@@ -48,7 +56,7 @@ public class MainActivity extends Activity {
         final TextView packagen = new TextView(this);
         final ImageView icon = new ImageView(this);
         main.setTextSize((float) 30);
-        Button uninstall = new Button(this);
+        final Button uninstall = new Button(this);
         uninstall.setText(R.string.uninstall);
         superinfo.addView(icon);
         info.addView(main);
@@ -74,44 +82,38 @@ public class MainActivity extends Activity {
                         ver.setText(String.valueOf(apps.get(finalI).versionName) + " (" + String.valueOf(apps.get(finalI).versionCode) + ")");
                         packagen.setText(apps.get(finalI).packageName);
                         icon.setImageDrawable(apps.get(finalI).applicationInfo.loadIcon(getPackageManager()));
+                        uninstall.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent(Intent.ACTION_DELETE);
+                                intent.setData(Uri.parse("package:" + apps.get(finalI).packageName));
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                                final BroadcastReceiver uninstallrec = new BroadcastReceiver() {
+                                    @Override
+                                    public void onReceive(Context context, Intent intent) {
+                                        if (!Light.Device.isInstalled(getApplicationContext(), apps.get(finalI).packageName)) {
+                                            context.unregisterReceiver(this);
+                                            startApp();
+                                        }
+                                    }
+                                };
+                                IntentFilter intentFilter = new IntentFilter(Intent.ACTION_PACKAGE_REMOVED);
+                                intentFilter.addDataScheme("package");
+                                registerReceiver(uninstallrec, intentFilter);
+                            }
+                        });
                     }
                 });
                 int size = Light.Device.screenX(this) / 7;
                 bt.setLayoutParams(new LinearLayout.LayoutParams(size, size));
                 hsvll.addView(bt);
-                if(apps.get(i).packageName.equals(getPackageName())){
+                if (apps.get(i).packageName.equals(getPackageName())) {
                     bt.callOnClick();
                 }
             }
         }
         setContentView(ll);
-    }
-
-    LinearLayout getApp(String name, Drawable icon) {
-        LinearLayout app = new LinearLayout(getApplicationContext());
-        app.setOrientation(LinearLayout.VERTICAL);
-        app.setGravity(Gravity.CENTER);
-        app.setLayoutParams(new LinearLayout.LayoutParams(Light.Device.screenX(getApplicationContext()) / 3, Light.Device.screenY(getApplicationContext()) / 4));
-        ImageView iv = new ImageView(getApplicationContext());
-        TextView tv = new TextView(getApplicationContext());
-        app.addView(iv);
-        app.addView(tv);
-        iv.setImageDrawable(icon);
-        tv.setText(name);
-        app.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO prompt uninstall
-            }
-        });
-        app.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                //TODO show details
-                return true;
-            }
-        });
-        return app;
     }
 
     boolean isUserApp(ApplicationInfo ai) {
