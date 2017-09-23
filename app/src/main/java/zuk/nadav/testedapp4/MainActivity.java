@@ -1,39 +1,82 @@
 package zuk.nadav.testedapp4;
 
-import android.content.Intent;
-import android.content.pm.ResolveInfo;
+import android.app.Activity;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
 import nadav.tasher.lightool.Light;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        LinearLayout ll=findViewById(R.id.linearLayout1);
-        Toast.makeText(this,"Screen: "+ Light.Device.screenX(getApplicationContext()) + "x"+ Light.Device.screenY(this),Toast.LENGTH_SHORT).show();
+        LinearLayout ll=new LinearLayout(this);
+        ll.setOrientation(LinearLayout.VERTICAL);
+        ll.setGravity(Gravity.START);
+        HorizontalScrollView hsv=new HorizontalScrollView(this);
+        LinearLayout hsvll=new LinearLayout(this);
+        hsvll.setGravity(Gravity.START);
+        hsvll.setOrientation(LinearLayout.HORIZONTAL);
+        hsv.addView(hsvll);
+        ll.addView(hsv);
+        hsvll.setPadding(10, 10, 10, 10);
+        //INFOVIEW
+        LinearLayout superinfo = new LinearLayout(this);
+        superinfo.setGravity(Gravity.CENTER);
+        superinfo.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout info = new LinearLayout(this);
+        info.setOrientation(LinearLayout.VERTICAL);
+        info.setGravity(Gravity.CENTER);
+        final TextView main = new TextView(this);
+        final TextView vercode = new TextView(this);
+        final TextView vername = new TextView(this);
+        ImageView icon = new ImageView(this);
+        Button uninstall = new Button(this);
+        uninstall.setText(R.string.uninstall);
+        superinfo.addView(icon);
+        info.addView(main);
+        info.addView(vercode);
+        info.addView(vername);
+        info.addView(uninstall);
+        superinfo.addView(info);
+        ll.addView(superinfo);
+//        Toast.makeText(this,"Screen: "+ Light.Device.screenX(getApplicationContext()) + "x"+ Light.Device.screenY(this),Toast.LENGTH_SHORT).show();
         //getting a list of apps{
-        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> pkgAppsList = getPackageManager().queryIntentActivities( mainIntent, 0);
+        final List<PackageInfo> apps = getPackageManager().getInstalledPackages(PackageManager.GET_ACTIVITIES);
         //getting a list of apps}
-        for(int i=0;i<pkgAppsList.size();i++){
-            LinearLayout currentApp=getApp((String)pkgAppsList.get(i).loadLabel(getPackageManager()),pkgAppsList.get(i).loadIcon(getPackageManager()));
+        for (int i = 0; i < apps.size(); i++) {
             //TODO add app view (currentApp) to Layout
-
+            ImageButton bt=new ImageButton(this);
+            bt.setImageDrawable(getPackageManager().getApplicationIcon(apps.get(i).applicationInfo));
+            bt.setBackgroundColor(Color.TRANSPARENT);
+            final int finalI = i;
+            bt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    main.setText(apps.get(finalI).applicationInfo.loadLabel(getPackageManager()));
+                    vercode.setText(String.valueOf(apps.get(finalI).versionCode));
+                    vername.setText(String.valueOf(apps.get(finalI).versionName));
+                }
+            });
+            int size= Light.Device.screenX(this)/7;
+            bt.setLayoutParams(new LinearLayout.LayoutParams(size,size));
+            hsvll.addView(bt);
         }
-        setContentView(R.layout.activity_main);
+        setContentView(ll);
     }
     LinearLayout getApp(String name,Drawable icon){
         LinearLayout app=new LinearLayout(getApplicationContext());
